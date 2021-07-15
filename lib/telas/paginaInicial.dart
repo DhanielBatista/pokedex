@@ -62,18 +62,43 @@ class _PaginaInicialState extends State<PaginaInicial> {
           Map? pokemon = snapshot.data;
 
           return ListView.builder(
-            itemCount: pokemon!['results'].length,
-            itemBuilder: (BuildContext context, int index) {
-              return Stack(
-                children: [
-                  Container(
-                    child: Text('${pokemon['results'][index]['name']}'),
-                  ),
-                  Container()
-                ],
-              );
-            },
-          );
+              itemCount: pokemon!['results'].length,
+              itemBuilder: (BuildContext context, int index) {
+                return FutureBuilder(
+                  future: api
+                      .informacoesSobrePoke(pokemon['results'][index]['url']),
+                  builder: (
+                    BuildContext context,
+                    AsyncSnapshot<Map> snapshot,
+                  ) {
+                    if (snapshot.hasData) {
+                      return Stack(
+                        children: [
+                          Container(
+                            child: Text('${pokemon['results'][index]['name']}'),
+                          ),
+                          Container(
+                            child: Image.network(
+                                snapshot.data!['sprites']['other']
+                                    ['official-artwork']['front_default'],
+                                width: 150,
+                                height: 150),
+                          )
+                        ],
+                      );
+                    } else {
+                      return Stack(
+                        children: [
+                          Container(
+                            child: Text('${pokemon['results'][index]['name']}'),
+                          ),
+                          Container()
+                        ],
+                      );
+                    }
+                  },
+                );
+              });
         } else {
           return Container();
         }
