@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_pokedex/telas/informacoesPokemon.dart';
-import 'selecionarPokemon.dart';
-import 'package:projeto_pokedex/apiControle/controlePokeApi.dart' as api;
+import 'package:projeto_pokedex/Controle/controlePokeApi.dart' as api;
 
 class PaginaInicial extends StatefulWidget {
   const PaginaInicial({Key? key}) : super(key: key);
@@ -11,16 +10,16 @@ class PaginaInicial extends StatefulWidget {
 }
 
 class _PaginaInicialState extends State<PaginaInicial> {
-  String _pokemonSelecionado = '';
+  String _pesquisarPokemon = '';
 
-  Future _abrirNovaTela(BuildContext context) async {
+  Future _abrirTelaDePesquisa(BuildContext context) async {
     Map? resultado = await Navigator.of(context)
         .push(new MaterialPageRoute<Map>(builder: (BuildContext context) {
       return new InformacoesPokemon();
     }));
     if (resultado != null && resultado.containsKey('pokemonPesquisado')) {
       setState(() {
-        _pokemonSelecionado = resultado['pokemonPesquisado'];
+        _pesquisarPokemon = resultado['pokemonPesquisado'];
       });
     }
   }
@@ -36,8 +35,8 @@ class _PaginaInicialState extends State<PaginaInicial> {
             )),
         actions: [
           IconButton(
-              onPressed: () => _abrirNovaTela(context),
-              icon: Icon(Icons.menu_book_rounded, color: Colors.white)),
+              onPressed: () => _abrirTelaDePesquisa(context),
+              icon: Icon(Icons.search, color: Colors.white)),
         ],
       ),
       body: Stack(
@@ -46,9 +45,11 @@ class _PaginaInicialState extends State<PaginaInicial> {
             child: Image.asset(
               'assets/pokeBusto.png',
               color: Colors.grey.shade300,
+              width: double.infinity,
+              height: double.infinity,
             ),
           ),
-          widgetMostrarPokemons(_pokemonSelecionado)
+          widgetMostrarPokemons(_pesquisarPokemon)
         ],
       ),
     );
@@ -61,40 +62,41 @@ class _PaginaInicialState extends State<PaginaInicial> {
         if (snapshot.hasData) {
           Map? pokemon = snapshot.data;
 
-          return ListView.builder(
+          return GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+              ),
               itemCount: pokemon!['results'].length,
               itemBuilder: (BuildContext context, int index) {
                 return FutureBuilder(
-                  future: api
-                      .informacoesSobrePoke(pokemon['results'][index]['url']),
+                  future:
+                      api.pokeListaInicial(pokemon['results'][index]['url']),
                   builder: (
                     BuildContext context,
                     AsyncSnapshot<Map> snapshot,
                   ) {
                     if (snapshot.hasData) {
-                      return Stack(
-                        children: [
-                          Container(
-                            child: Text('${pokemon['results'][index]['name']}'),
+                      return ListTile(
+                          title: Image.network(
+                            snapshot.data!['sprites']['other']
+                                ['official-artwork']['front_default'],
+                            width: 90,
+                            height: 90,
                           ),
-                          Container(
-                            child: Image.network(
-                                snapshot.data!['sprites']['other']
-                                    ['official-artwork']['front_default'],
-                                width: 150,
-                                height: 150),
-                          )
-                        ],
-                      );
+                          subtitle: Text(
+                            '${pokemon['results'][index]['name']}'
+                                .toUpperCase(),
+                            textAlign: TextAlign.center,
+                          ),
+                          onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    settings:
+                                        RouteSettings(arguments: snapshot.data),
+                                    builder: (context) => InformacoesPokemon()),
+                              ));
                     } else {
-                      return Stack(
-                        children: [
-                          Container(
-                            child: Text('${pokemon['results'][index]['name']}'),
-                          ),
-                          Container()
-                        ],
-                      );
+                      return Container();
                     }
                   },
                 );
