@@ -155,20 +155,49 @@ class _InformacoesPokemonState extends State<InformacoesPokemon> {
             child: Text('Status',
                 textAlign: TextAlign.left,
                 style: TextStyle(fontWeight: FontWeight.bold))),
-        Container(
-            child: FutureBuilder(
-                future:
-                    api.pokeListaInicial(pokemonSelecionado['species']['url']),
-                builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
-                  if (snapshot.hasData) {
-                    Map? infoPokemon = snapshot.data;
-                    return Column(
-                      children: [Text('${infoPokemon!['id']}')],
-                    );
-                  } else {
-                    return Container();
-                  }
-                })),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+              alignment: Alignment.topLeft,
+              child: Text(
+                "HP: ${pokemonSelecionado!['stats'][0]['base_stat']}",
+              )),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+              alignment: Alignment.topLeft,
+              child:
+                  Text("ATK: ${pokemonSelecionado!['stats'][1]['base_stat']}")),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+              alignment: Alignment.topLeft,
+              child:
+                  Text("DEF: ${pokemonSelecionado!['stats'][2]['base_stat']}")),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+              alignment: Alignment.topLeft,
+              child: Text(
+                  "SPECIAL - ATK: ${pokemonSelecionado!['stats'][3]['base_stat']}")),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+              alignment: Alignment.topLeft,
+              child: Text(
+                  "SPECIAL - DEF: ${pokemonSelecionado!['stats'][4]['base_stat']}")),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+              alignment: Alignment.topLeft,
+              child: Text(
+                  "SPEED: ${pokemonSelecionado!['stats'][5]['base_stat']}")),
+        ),
       ],
     );
   }

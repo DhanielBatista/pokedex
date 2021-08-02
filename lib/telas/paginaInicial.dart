@@ -12,18 +12,6 @@ class PaginaInicial extends StatefulWidget {
 class _PaginaInicialState extends State<PaginaInicial> {
   String _pesquisarPokemon = '';
 
-  Future _abrirTelaDePesquisa(BuildContext context) async {
-    Map? resultado = await Navigator.of(context)
-        .push(new MaterialPageRoute<Map>(builder: (BuildContext context) {
-      return new InformacoesPokemon();
-    }));
-    if (resultado != null && resultado.containsKey('pokemonPesquisado')) {
-      setState(() {
-        _pesquisarPokemon = resultado['pokemonPesquisado'];
-      });
-    }
-  }
-
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -33,23 +21,10 @@ class _PaginaInicialState extends State<PaginaInicial> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
             )),
-        actions: [
-          IconButton(
-              onPressed: () => _abrirTelaDePesquisa(context),
-              icon: Icon(Icons.search, color: Colors.white)),
-        ],
       ),
       body: Stack(
         children: [
-          Container(
-            child: Image.asset(
-              'assets/pokeBusto.png',
-              color: Colors.grey.shade300,
-              width: double.infinity,
-              height: double.infinity,
-            ),
-          ),
-          widgetMostrarPokemons(_pesquisarPokemon)
+          Container(child: widgetMostrarPokemons(_pesquisarPokemon)),
         ],
       ),
     );
@@ -64,8 +39,10 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
           return GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-              ),
+                  crossAxisCount: 2,
+                  mainAxisExtent: 80.0,
+                  crossAxisSpacing: 60.0,
+                  childAspectRatio: 560.0),
               itemCount: pokemon!['results'].length,
               itemBuilder: (BuildContext context, int index) {
                 return FutureBuilder(
@@ -76,25 +53,29 @@ class _PaginaInicialState extends State<PaginaInicial> {
                     AsyncSnapshot<Map> snapshot,
                   ) {
                     if (snapshot.hasData) {
-                      return ListTile(
-                          title: Image.network(
-                            snapshot.data!['sprites']['other']
-                                ['official-artwork']['front_default'],
-                            width: 90,
-                            height: 90,
-                          ),
-                          subtitle: Text(
-                            '${pokemon['results'][index]['name']}'
-                                .toUpperCase(),
-                            textAlign: TextAlign.center,
-                          ),
-                          onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    settings:
-                                        RouteSettings(arguments: snapshot.data),
-                                    builder: (context) => InformacoesPokemon()),
-                              ));
+                      return Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: ListTile(
+                            title: Image.network(
+                              snapshot.data!['sprites']['other']
+                                  ['official-artwork']['front_default'],
+                              width: 90,
+                              height: 90,
+                            ),
+                            subtitle: Text(
+                              '${pokemon['results'][index]['name']}'
+                                  .toUpperCase(),
+                              textAlign: TextAlign.center,
+                            ),
+                            onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      settings: RouteSettings(
+                                          arguments: snapshot.data),
+                                      builder: (context) =>
+                                          InformacoesPokemon()),
+                                )),
+                      );
                     } else {
                       return Container();
                     }
